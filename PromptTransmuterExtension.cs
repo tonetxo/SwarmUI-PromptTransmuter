@@ -49,11 +49,6 @@ public class PromptTransmuterExtension : Extension
         Logs.Info("Prompt Transmuter extension loaded.");
     }
 
-    /// <summary>Intentionally empty: keeps the metadata set in <see cref="OnPreInit"/> instead of the git-derived defaults, as this repository has no HTTPS remote.</summary>
-    public override void PopulateMetadata()
-    {
-    }
-
     /// <summary>API route: returns 'count' transmuted variants of the prompt.</summary>
     public static Task<JObject> TransmutePrompt(Session session, string prompt, string mode, int strength, int count, int seed)
     {
