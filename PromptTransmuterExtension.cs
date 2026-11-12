@@ -237,9 +237,7 @@ public class PromptTransmuterExtension : Extension
             Default: "words",
             Group: group,
             OrderPriority: 1,
-            GetValues: _ => [.. ValidModes],
-            // The saved prompt is already transmuted: reusing this would transmute it a second time.
-            Nonreusable: true
+            GetValues: _ => [.. ValidModes]
         ));
 
         AutoTransmuteStrength = T2IParamTypes.Register<int>(new T2IParamType(
@@ -279,8 +277,12 @@ public class PromptTransmuterExtension : Extension
             if (seed == -1)
             {
                 seed = Random.Shared.Next();
+                // Lock the resolved seed into the input so the image metadata records it (not -1) and the variant can be reproduced.
+                input.Set(AutoTransmuteSeed, seed);
             }
             int variantSeed = HashCombine(seed, StableHash(mode), StableHash(prompt.Trim()));
+            // Keep the untransmuted prompt in metadata (core only records it when wildcards/tags changed it), so reuse restores it instead of transmuting the transmuted text again.
+            input.ExtraMeta.TryAdd("original_prompt", prompt);
             input.Set(T2IParamTypes.Prompt, Transmute(prompt, mode, strength, variantSeed).Text);
         });
     }
